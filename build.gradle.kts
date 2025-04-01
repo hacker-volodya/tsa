@@ -28,10 +28,5 @@ subprojects {
                 }
             }
         }
-    } else {
-        // For modules that should not be published, disable publish tasks.
-        tasks.matching { it.name.startsWith("publish") }.configureEach { task ->
-            task.setEnabled(false)
-        }
     }
 }
