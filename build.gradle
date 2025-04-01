@@ -1,45 +1,38 @@
 allprojects {
     version = "1.0"
-    group = 'tsa'
+    group = "tsa"
 }
 
 subprojects {
-    allprojects {
-        version = "1.0"
-        group = 'tsa'
+    // Apply common settings
+    apply(plugin = "java")
+
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
     }
-    
-    subprojects {
-        // Apply Java plugin to all subprojects (or only to those that need it)
-        apply plugin: 'java'
-    
-        // Check if the current project should be published.
-        if (project.name in ["tsa-core", "tsa-jettons", "tsa-metrics", "tsa-networking", "tsa-sarif", "tsa-test-gen"]) {
-            apply plugin: 'maven-publish'
-            
-            sourceCompatibility = 1.8
-            targetCompatibility = 1.8
-    
-            java {
-                withSourcesJar()
-                withJavadocJar()
-            }
-    
-            publishing {
-                publications {
-                    maven(MavenPublication) {
-                        groupId project.group
-                        artifactId project.name
-                        version project.version
-                        from components.java
-                    }
+
+    // Only enable publishing for the specified modules
+    if (project.name in listOf("tsa-core", "tsa-jettons", "tsa-metrics", "tsa-networking", "tsa-sarif", "tsa-test-gen")) {
+        apply(plugin = "maven-publish")
+
+        publishing {
+            publications {
+                create<MavenPublication>("maven") {
+                    groupId = project.group.toString()
+                    artifactId = project.name
+                    version = project.version.toString()
+                    from(components["java"])
                 }
             }
-        } else {
-            // For modules you do not want to publish, disable any publishing tasks
-            tasks.matching { it.name.startsWith("publish") }.configureEach {
-                enabled = false
-            }
+        }
+    } else {
+        // For modules that should not be published, disable publish tasks
+        tasks.matching { it.name.startsWith("publish") }.configureEach {
+            enabled = false
         }
     }
 }
