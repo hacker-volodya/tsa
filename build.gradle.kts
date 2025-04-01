@@ -4,22 +4,21 @@ allprojects {
 }
 
 subprojects {
-    // Apply common settings
-    apply(plugin = "java")
-
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-
-    java {
+    // Apply the Java plugin to every subproject.
+    plugins.apply("java")
+    
+    // Configure Java settings using the JavaPluginExtension.
+    extensions.configure<JavaPluginExtension> {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
         withSourcesJar()
         withJavadocJar()
     }
 
-    // Only enable publishing for the specified modules
+    // Conditionally apply the maven-publish plugin and configure publication only for selected modules.
     if (project.name in listOf("tsa-core", "tsa-jettons", "tsa-metrics", "tsa-networking", "tsa-sarif", "tsa-test-gen")) {
-        apply(plugin = "maven-publish")
-
-        publishing {
+        plugins.apply("maven-publish")
+        extensions.configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("maven") {
                     groupId = project.group.toString()
@@ -30,9 +29,9 @@ subprojects {
             }
         }
     } else {
-        // For modules that should not be published, disable publish tasks
+        // For modules that should not be published, disable publish tasks.
         tasks.matching { it.name.startsWith("publish") }.configureEach {
-            enabled = false
+            it.enabled = false
         }
     }
 }
