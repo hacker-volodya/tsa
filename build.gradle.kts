@@ -1,6 +1,6 @@
 allprojects {
     version = "1.0"
-    group = "tsa"
+    group = "org.usvm"
 }
 
 subprojects {
